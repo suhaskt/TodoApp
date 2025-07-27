@@ -1,7 +1,7 @@
 [versions]
-agp = "8.7.3"
+agp = "8.8.0"
 foundation = "1.8.3"
-kotlin = "2.0.0"
+kotlin = "2.1.0"
 coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -9,10 +9,10 @@ espressoCore = "3.6.1"
 lifecycleVersion = "2.9.1"
 activityCompose = "1.10.1"
 composeBom = "2025.06.01"
-composeMaterial = "1.8.3"
+composeMaterial = "1.6.8"
 roomVersion = "2.7.2"
 ksp = "2.1.0-1.0.29"
-daggerHiltVersion = "2.49"
+daggerHiltVersion = "2.55"
 hiltCompiler = "1.2.0"
 hiltNavigationCompose = "1.2.0"
 navCompose = "2.9.0"
@@ -50,7 +50,7 @@ androidx-navigation-navigation-compose = { module = "androidx.navigation:navigat
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-kotlin-ksp = {id = "com.google.devtools.ksp"}
+kotlin-ksp = {id = "com.google.devtools.ksp", version.ref = "ksp"}
 kotlin-kapt = {id = "kotlin-kapt"}
-dagger-hilt-android = {id = "com.google.dagger.hilt.android"}
+dagger-hilt-android = {id = "com.google.dagger.hilt.android", version.ref = "daggerHiltVersion"}
 

@@ -1,10 +1,11 @@
 package com.suhas.todoapplication.data
 
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class TodoRepository @Inject constructor(private val todoDao: TodoDao) {
 
-    suspend fun getAllTodos(): List<Todo> {
+    fun getAllTodos(): Flow<List<Todo>> {
         return todoDao.getAllTodos()
     }
 
