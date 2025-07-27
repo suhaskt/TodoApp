@@ -4,19 +4,17 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.kotlin.kapt)
-//    alias(libs.plugins.dagger.hilt.android)
-    id("com.google.dagger.hilt.android")
-}
+    alias(libs.plugins.dagger.hilt.android)}
 
 android {
 
     namespace = "com.suhas.todoapplication"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.suhas.todoapplication"
         minSdk = 27
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -30,6 +28,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+    kapt {
+        arguments {
+            arg("room.schemaLocation", "$projectDir/schemas")
         }
     }
     compileOptions {
@@ -73,8 +76,8 @@ dependencies {
     //hilt
     implementation(libs.dagger.hilt)
     implementation(libs.androidx.hilt.navigation.compose)
-    kapt(libs.dagger.hilt.compiler)
-    kapt(libs.hilt.compiler)
+    ksp(libs.dagger.hilt.compiler)
+    ksp(libs.hilt.compiler)
 
     //test
     testImplementation(libs.junit)

@@ -1,5 +1,6 @@
 package com.suhas.todoapplication.ui.ui.alertDialogs
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -21,13 +22,14 @@ import com.suhas.todoapplication.R
 import com.suhas.todoapplication.ui.ui.theme.TodoAppTheme
 
 @Composable
-fun AddTaskDialog(
+fun TaskDialog(
+    title: String, // "Add Task" or "Edit Task"
     inputText: String,
     showError: Boolean,
-    updateInputTask: (String) -> Unit,
-    onAdd: () -> Unit,
-    onDismiss: () -> Unit
-
+    onInputTaskChange: (String) -> Unit,
+    onSubmit: () -> Unit,
+    onDismiss: () -> Unit,
+    submitButtonLabel: String // "Add" or "Save"
 ) {
 
     Dialog(
@@ -39,7 +41,7 @@ fun AddTaskDialog(
     ) {
         Card(
             shape = RoundedCornerShape(10.dp),
-            backgroundColor = MaterialTheme.colors.background,
+            backgroundColor = MaterialTheme.colors.surface,
             modifier = Modifier.padding(8.dp),
             elevation = 8.dp
         ) {
@@ -55,7 +57,8 @@ fun AddTaskDialog(
                         .padding(bottom = 8.dp)
                 ) {
                     Text(
-                        text = stringResource(id = R.string.add_new),
+                        text = title,
+                        color = MaterialTheme.colors.primary,
                         style = MaterialTheme.typography.h6,
                         modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
                     )
@@ -72,42 +75,52 @@ fun AddTaskDialog(
                         imeAction = ImeAction.Done
                     ),
                     keyboardActions = KeyboardActions(
-                        onDone = { onAdd() }
+                        onDone = { onSubmit() }
                     ),
                     textStyle = TextStyle(color = MaterialTheme.colors.onSurface),
-                    maxLines = 2,
+                    maxLines = 3,
                     modifier = Modifier.padding(8.dp),
                     label = {
                         Text(stringResource(id = R.string.enter_new_task))
                     },
                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = MaterialTheme.colors.onBackground,
+                        focusedBorderColor = MaterialTheme.colors.primary,
                         unfocusedBorderColor = MaterialTheme.colors.onBackground,
-                        focusedLabelColor = MaterialTheme.colors.onBackground,
+                        focusedLabelColor = MaterialTheme.colors.primary,
                         unfocusedLabelColor = MaterialTheme.colors.onBackground,
-                        cursorColor = MaterialTheme.colors.onBackground
+                        cursorColor = MaterialTheme.colors.onBackground,
+                        errorBorderColor = MaterialTheme.colors.error,
+                        errorLabelColor = MaterialTheme.colors.error,
+                        errorCursorColor = MaterialTheme.colors.error
                     )
+
                 )
 
                 if (showError && inputText.isBlank()) {
-                    Row(
+                    Log.d("TodoApp", "show error = $showError")
+
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 8.dp)
-                    )
-                    {
-                        Icon(
-                            imageVector = Icons.Filled.Error,
-                            contentDescription = "Error",
-                            tint = MaterialTheme.colors.error,
-                            modifier = Modifier.size(20.dp)
+                            .padding(start = 8.dp, top = 4.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
                         )
-                        Text(
-                            text = stringResource(id = R.string.empty_task_error),
-                            color = MaterialTheme.colors.error,
-                            style = MaterialTheme.typography.caption,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
+                        {
+                            Icon(
+                                imageVector = Icons.Filled.Error,
+                                contentDescription = "Error",
+                                tint = MaterialTheme.colors.error,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = stringResource(id = R.string.empty_task_error),
+                                color = MaterialTheme.colors.error,
+                                style = MaterialTheme.typography.caption,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
                     }
                 }
                 Row {
@@ -119,25 +132,30 @@ fun AddTaskDialog(
                             .padding(8.dp)
                             .weight(1f),
                         colors = ButtonDefaults.outlinedButtonColors(
-                            backgroundColor = MaterialTheme.colors.background
+                            backgroundColor = MaterialTheme.colors.surface,
                         )
+
                     ) {
                         Text(
-                            stringResource(id = R.string.cancel_task),
+                            stringResource(id = R.string.cancel),
                             color = MaterialTheme.colors.primary
                         )
                     }
                     //submit
                     Button(
-                        enabled = inputText.isNotBlank(),
-                        onClick = { onAdd() },
+                        onClick = { onSubmit() },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
                             .weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = MaterialTheme.colors.primary,
+                            contentColor = MaterialTheme.colors.onPrimary
+                        )
+
                     ) {
                         Text(
-                            stringResource(id = R.string.add_task),
+                            submitButtonLabel,
                             color = MaterialTheme.colors.onBackground
                         )
                     }
@@ -145,7 +163,6 @@ fun AddTaskDialog(
             }
         }
     }
-
 }
 
 
@@ -153,12 +170,14 @@ fun AddTaskDialog(
 @Composable
 fun PreviewAddTaskDialog() {
     TodoAppTheme {
-        AddTaskDialog(
-            inputText = "title",
-            showError = false,
+        TaskDialog(
+            title = "title",
+            inputText = "new task",
+            showError = true,
             onInputTaskChange = {},
-            onAdd = {},
+            onSubmit = {},
             onDismiss = {},
+            submitButtonLabel = "submit",
         )
     }
 }

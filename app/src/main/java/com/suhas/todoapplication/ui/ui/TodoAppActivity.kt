@@ -1,19 +1,34 @@
 package com.suhas.todoapplication.ui.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.FabPosition
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,19 +36,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.R
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.suhas.todoapplication.ui.ui.checkboxItem.TodoEachItem
-import com.suhas.todoapplication.ui.ui.alertDialogs.AddTaskDialog
-import com.suhas.todoapplication.ui.ui.theme.TodoAppTheme
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.rememberNavController
-import com.suhas.todoapplication.viewModel.TodoViewModel
+import com.suhas.todoapplication.ui.ui.alertDialogs.TaskDialog
+import com.suhas.todoapplication.ui.ui.alertDialogs.createTaskDialogConfig
+import com.suhas.todoapplication.ui.ui.cards.TopCard
+import com.suhas.todoapplication.ui.ui.checkboxItem.TodoEachItem
+import com.suhas.todoapplication.ui.ui.navBars.BottomNavBar
 import com.suhas.todoapplication.ui.ui.navBars.TopNavBar
+import com.suhas.todoapplication.ui.ui.placeHolders.EmptyTaskPlaceHolder
+import com.suhas.todoapplication.ui.ui.theme.TodoAppTheme
+import com.suhas.todoapplication.viewModel.TodoViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -43,10 +61,19 @@ fun TodoApp(todoViewModel: TodoViewModel = hiltViewModel()) {
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
     val navController = rememberNavController()
-    val currentDismissedItem = remember { mutableStateOf<String?>(null) }
+    val listScrollState = rememberLazyListState()
+    val currentSwipedItem = todoViewModel.currentSwipedItem
+    val itemToDeleteAnimated by todoViewModel.itemToDeleteAnimated
+    val newItemAddCounter by todoViewModel.newItemAddCounter
     var showDialog by remember { mutableStateOf(false) }
 
-
+    //scroll-to-top animation
+    LaunchedEffect(newItemAddCounter) {
+        if (newItemAddCounter > 0) {
+            delay(50)
+            listScrollState.animateScrollToItem(0)
+        }
+    }
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = { TopNavBar(navController) },
@@ -57,7 +84,8 @@ fun TodoApp(todoViewModel: TodoViewModel = hiltViewModel()) {
                 backgroundColor = MaterialTheme.colors.onBackground,
                 contentColor = MaterialTheme.colors.surface,
                 modifier = Modifier
-                    .padding(bottom = 16.dp)
+                    .size(60.dp)
+                    .offset(y = 8.dp)
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onLongPress = {
@@ -76,7 +104,9 @@ fun TodoApp(todoViewModel: TodoViewModel = hiltViewModel()) {
                 Icon(Icons.Default.Add, contentDescription = "Add task")
             }
         },
-        floatingActionButtonPosition = FabPosition.Center
+        floatingActionButtonPosition = FabPosition.Center,
+        isFloatingActionButtonDocked = true,
+        bottomBar = { BottomNavBar(navController) }
     )
     { innerPadding ->
         Column(
@@ -85,59 +115,80 @@ fun TodoApp(todoViewModel: TodoViewModel = hiltViewModel()) {
                 .padding(innerPadding)
                 .background(MaterialTheme.colors.background)
         ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                elevation = 8.dp,
-                backgroundColor = MaterialTheme.colors.surface
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.thought_of_the_day),
-                        style = MaterialTheme.typography.h6,
-                        color = MaterialTheme.colors.primary
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "\"Success is not final, failure is not fatal: it is the courage to continue that counts.\"",
-                        style = MaterialTheme.typography.body1,
-                        color = MaterialTheme.colors.onSurface
-                    )
-                }
-            }
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                items(todoList) { todoItem ->
-                    TodoEachItem(
-                        todo = todoItem,
-                        onToggleCheck = TODO(),
-                        onEdit = todoViewModel::updateTodo,
-                        onDelete = todoViewModel::removeTodo,
-                        currentDismissedItem = currentDismissedItem,
-                    )
-                }
-                item {
-                    Spacer(modifier = Modifier.height(80.dp))
-                }
-            }
-        }
+            TopCard()
+            if (todoList.isEmpty()) {
+                EmptyTaskPlaceHolder()
+            } else {
+//                val decay = rememberSplineBasedDecay<Float>()
+                val flingBehavior = ScrollableDefaults.flingBehavior()
 
-        if (showDialog) {
-            AddTaskDialog(
-                inputText = todoViewModel.inputTaskText,
-                showError = todoViewModel.showError,
-                updateInputTask = { todoViewModel.updateInputTask(it) },
-                onAdd = {
-                    todoViewModel.validateAndAdd {
-                        showDialog = false
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .animateContentSize(animationSpec = tween(300)),
+                    userScrollEnabled = true,
+                    flingBehavior = flingBehavior,
+                    state = listScrollState,
+                    contentPadding = PaddingValues(bottom = 30.dp)
+                ) {
+                    items(items = todoList, key = { it.id }) { todoItem ->
+                        val isBeingDeleted = itemToDeleteAnimated == todoItem.id
+                        val itemVisible = remember { mutableStateOf(true) }
+
+                        LaunchedEffect(isBeingDeleted) {
+                            if (isBeingDeleted) {
+                                itemVisible.value = false
+                            }
+                        }
+                        LaunchedEffect(itemVisible.value) {
+                            if (!itemVisible.value) {
+                                delay(300)
+                                todoViewModel.onAnimationEnd(todoItem.id)
+                            }
+                        }
+                        AnimatedVisibility(
+                            visible = !isBeingDeleted,
+                            enter = fadeIn(),
+                            exit = shrinkHorizontally(animationSpec = tween(durationMillis = 300)) + fadeOut()
+                        ) {
+                            TodoEachItem(
+                                todo = todoItem,
+                                onToggleCheck = todoViewModel::updateTodo,
+                                onEdit = {
+                                    showDialog = true
+                                    todoViewModel.editTask(todoItem)
+                                },
+                                onDelete = todoViewModel::removeTodo,
+                                currentSwipedItem = currentSwipedItem
+                            )
+                        }
+
                     }
-                },
-                onDismiss = {
-                    todoViewModel.clearTaskInput()
-                    showDialog = false
                 }
-            )
+            }
         }
+    }
+    if (showDialog) {
+        val dialogConfig = createTaskDialogConfig(todoViewModel.currentEditingTask)
+
+        TaskDialog(
+            title = dialogConfig.title,
+            inputText = todoViewModel.inputTaskText,
+            showError = todoViewModel.showError,
+            onInputTaskChange = { todoViewModel.updateInputTask(it) },
+            onSubmit = {
+                todoViewModel.validateAndAdd {
+                    showDialog = false
+                    currentSwipedItem.value = null
+                }
+            },
+            onDismiss = {
+                todoViewModel.clearTaskInput()
+                showDialog = false
+                currentSwipedItem.value = null
+            },
+            submitButtonLabel = dialogConfig.submitButtonLabel
+        )
     }
 }
 

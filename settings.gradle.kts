@@ -12,6 +12,9 @@ pluginManagement {
     }
 
 }
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -20,6 +23,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "To-Do App"
+rootProject.name = "to-do_app"
 include(":app")
  
