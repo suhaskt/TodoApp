@@ -15,7 +15,6 @@ val Pink40 = Color(0xFF7D5260)
 // app theme color palette - bright
 val HoneyYellow = Color(0xFFFFEB3B)
 val GoldenYellow = Color(0xFFFBC02D)
-val GentleGoldenYellow = Color(0xFFFFF176)
 val BeeBlack = Color(0xFF000000)
 val DarkBeeBlack = Color(0xFF212121)
 val BeeGray = Color(0xFF757575)
@@ -25,6 +24,7 @@ val ErrorRed = Color(0xFFD32F2F)
 
 // app theme color palette - subtle
 val SoftHoneyYellow = Color(0xFFFFF9C4)
+val GentleGoldenYellow = Color(0xFFFFF176)
 val DarkBeeGray = Color(0xFF424242)
 val VerySoftYellow = Color(0xFFFFFDE7)
 val SubtleErrorRed = Color(0xFFEF5350)

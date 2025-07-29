@@ -1,4 +1,4 @@
-package com.suhas.todoapplication.ui.ui.alertDialogs
+package com.suhas.todoapplication.ui.ui.Dialogs
 
 import android.util.Log
 import androidx.compose.foundation.layout.*
@@ -22,14 +22,14 @@ import com.suhas.todoapplication.R
 import com.suhas.todoapplication.ui.ui.theme.TodoAppTheme
 
 @Composable
-fun TaskDialog(
-    title: String, // "Add Task" or "Edit Task"
+fun SubmitTaskDialog(
+    title: String,
     inputText: String,
     showError: Boolean,
     onInputTaskChange: (String) -> Unit,
     onSubmit: () -> Unit,
     onDismiss: () -> Unit,
-    submitButtonLabel: String // "Add" or "Save"
+    submitButtonLabel: String
 ) {
 
     Dialog(
@@ -46,27 +46,22 @@ fun TaskDialog(
             elevation = 8.dp
         ) {
             Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(bottom = 8.dp)
             ) {
                 //title
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                ) {
-                    Text(
-                        text = title,
-                        color = MaterialTheme.colors.primary,
-                        style = MaterialTheme.typography.h6,
-                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
-                    )
-                    Divider(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colors.onSurface,
-                    )
-                }
+                Text(
+                    text = title,
+                    color = MaterialTheme.colors.primary,
+                    style = MaterialTheme.typography.h6,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                )
+                Divider(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colors.onSurface,
+                )
                 //inputTextFiled
                 OutlinedTextField(
                     value = inputText,
@@ -79,7 +74,7 @@ fun TaskDialog(
                     ),
                     textStyle = TextStyle(color = MaterialTheme.colors.onSurface),
                     maxLines = 3,
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp),
                     label = {
                         Text(stringResource(id = R.string.enter_new_task))
                     },
@@ -93,34 +88,29 @@ fun TaskDialog(
                         errorLabelColor = MaterialTheme.colors.error,
                         errorCursorColor = MaterialTheme.colors.error
                     )
-
                 )
 
                 if (showError && inputText.isBlank()) {
                     Log.d("TodoApp", "show error = $showError")
-
-                    Column(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 8.dp, top = 4.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
+                            .padding(start = 8.dp, top = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    )
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Error,
+                            contentDescription = "Error",
+                            tint = MaterialTheme.colors.error,
+                            modifier = Modifier.size(20.dp)
                         )
-                        {
-                            Icon(
-                                imageVector = Icons.Filled.Error,
-                                contentDescription = "Error",
-                                tint = MaterialTheme.colors.error,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Text(
-                                text = stringResource(id = R.string.empty_task_error),
-                                color = MaterialTheme.colors.error,
-                                style = MaterialTheme.typography.caption,
-                                modifier = Modifier.padding(start = 4.dp)
-                            )
-                        }
+                        Text(
+                            text = stringResource(id = R.string.empty_task_error),
+                            color = MaterialTheme.colors.error,
+                            style = MaterialTheme.typography.caption,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
                     }
                 }
                 Row {
@@ -170,7 +160,7 @@ fun TaskDialog(
 @Composable
 fun PreviewAddTaskDialog() {
     TodoAppTheme {
-        TaskDialog(
+        SubmitTaskDialog(
             title = "title",
             inputText = "new task",
             showError = true,

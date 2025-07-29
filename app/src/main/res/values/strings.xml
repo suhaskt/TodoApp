@@ -11,6 +11,12 @@
     <string name="empty_task_error">Please enter a task</string>
     <string name="thought_of_the_day">🧠 Thought of the Day</string>
     <string name="emptylist_placeholder_text">No To-Dos to show \n please add new tasks</string>
+    <string name="welcome">Welcome</string>
+    <string name="view">View</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="ok">OK</string>
+    <string name="task_details">Task details</string>
     <!--    <string name="app_name">To-Do App</string>-->
 <!--    <string name="app_name">To-Do App</string>-->
 <!--    <string name="app_name">To-Do App</string>-->

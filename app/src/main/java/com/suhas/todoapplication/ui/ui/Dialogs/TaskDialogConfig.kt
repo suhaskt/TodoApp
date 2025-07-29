@@ -1,4 +1,4 @@
-package com.suhas.todoapplication.ui.ui.alertDialogs
+package com.suhas.todoapplication.ui.ui.Dialogs
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource

@@ -31,7 +31,7 @@ fun EmptyTaskPlaceHolder(){
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.empty_list_placeholder),
+                imageVector = getEmptyListPlaceholder(),
                 contentDescription = "No tasks to show",
                 modifier = Modifier.size(300.dp).padding(top = 16.dp)
             )
