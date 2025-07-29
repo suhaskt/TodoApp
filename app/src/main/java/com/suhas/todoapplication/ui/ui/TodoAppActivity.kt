@@ -42,8 +42,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.suhas.todoapplication.ui.ui.alertDialogs.TaskDialog
-import com.suhas.todoapplication.ui.ui.alertDialogs.createTaskDialogConfig
+import com.suhas.todoapplication.data.Todo
+import com.suhas.todoapplication.ui.ui.Dialogs.SubmitTaskDialog
+import com.suhas.todoapplication.ui.ui.Dialogs.ViewTaskDialog
+import com.suhas.todoapplication.ui.ui.Dialogs.createTaskDialogConfig
 import com.suhas.todoapplication.ui.ui.cards.TopCard
 import com.suhas.todoapplication.ui.ui.checkboxItem.TodoEachItem
 import com.suhas.todoapplication.ui.ui.navBars.BottomNavBar
@@ -66,6 +68,7 @@ fun TodoApp(todoViewModel: TodoViewModel = hiltViewModel()) {
     val itemToDeleteAnimated by todoViewModel.itemToDeleteAnimated
     val newItemAddCounter by todoViewModel.newItemAddCounter
     var showDialog by remember { mutableStateOf(false) }
+    var todoItemToView by remember { mutableStateOf<Todo?>(null) }
 
     //scroll-to-top animation
     LaunchedEffect(newItemAddCounter) {
@@ -154,6 +157,9 @@ fun TodoApp(todoViewModel: TodoViewModel = hiltViewModel()) {
                             TodoEachItem(
                                 todo = todoItem,
                                 onToggleCheck = todoViewModel::updateTodo,
+                                onView = { viewedItem ->
+                                    todoItemToView = viewedItem
+                                },
                                 onEdit = {
                                     showDialog = true
                                     todoViewModel.editTask(todoItem)
@@ -171,7 +177,7 @@ fun TodoApp(todoViewModel: TodoViewModel = hiltViewModel()) {
     if (showDialog) {
         val dialogConfig = createTaskDialogConfig(todoViewModel.currentEditingTask)
 
-        TaskDialog(
+        SubmitTaskDialog(
             title = dialogConfig.title,
             inputText = todoViewModel.inputTaskText,
             showError = todoViewModel.showError,
@@ -189,6 +195,15 @@ fun TodoApp(todoViewModel: TodoViewModel = hiltViewModel()) {
             },
             submitButtonLabel = dialogConfig.submitButtonLabel
         )
+    }
+    if (todoItemToView != null) {
+        ViewTaskDialog(
+            todo = todoItemToView!!,
+            onDismiss = {
+                todoItemToView = null
+            }
+        )
+
     }
 }
 

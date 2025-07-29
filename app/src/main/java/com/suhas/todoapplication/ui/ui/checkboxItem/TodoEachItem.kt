@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -27,18 +29,22 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.suhas.todoapplication.R
 import com.suhas.todoapplication.data.Todo
 import com.suhas.todoapplication.helperFunctions.formatTimestamp
 import com.suhas.todoapplication.ui.ui.theme.TodoAppTheme
@@ -50,6 +56,7 @@ import kotlin.math.roundToInt
 fun TodoEachItem(
     todo: Todo,
     onToggleCheck: (Todo) -> Unit,
+    onView: (Todo) -> Unit,
     onEdit: (Todo) -> Unit,
     onDelete: (Todo) -> Unit,
     currentSwipedItem: MutableState<Int?>
@@ -58,8 +65,9 @@ fun TodoEachItem(
     val coroutineScope = rememberCoroutineScope()
     val maxOffset = with(LocalDensity.current) { 80.dp.toPx() }
     val swipeThreshold = maxOffset * 0.6f
+    var showOptionsMenu by remember { mutableStateOf(false) }
 
-    //swipe reset animation
+    // Swipe reset animation
     LaunchedEffect(currentSwipedItem.value) {
         if (currentSwipedItem.value == null || currentSwipedItem.value != todo.id) {
             coroutineScope.launch {
@@ -84,11 +92,9 @@ fun TodoEachItem(
                                 swipeOffset.value > swipeThreshold -> { // right swipe
                                     maxOffset
                                 }
-
                                 swipeOffset.value < -swipeThreshold -> { // left swipe
                                     -maxOffset
                                 }
-
                                 else -> { // partial swipe
                                     currentSwipedItem.value = null
                                     0f
@@ -111,7 +117,7 @@ fun TodoEachItem(
                 )
             }
     ) {
-        // Revealed background
+        // Revealed background for Delete (left swipe)
         if (swipeOffset.value < 0f) {
             Box(
                 modifier = Modifier
@@ -129,6 +135,7 @@ fun TodoEachItem(
                 }
             }
         } else if (swipeOffset.value > 0f) {
+            // Revealed background for Edit (right swipe)
             Box(
                 modifier = Modifier
                     .matchParentSize()
@@ -174,14 +181,41 @@ fun TodoEachItem(
                         modifier = Modifier.weight(1f),
                         color = MaterialTheme.colors.onSurface
                     )
-                    IconButton(
-                        onClick = { /*TODO()*/ }
-                    ) {
-                        Icon(
-                            Icons.Default.MoreVert,
-                            contentDescription = "Options",
-                            tint = MaterialTheme.colors.onSurface
-                        )
+
+                    Box {
+                        IconButton(
+                            onClick = { showOptionsMenu = true }
+                        ) {
+                            Icon(
+                                Icons.Default.MoreVert,
+                                contentDescription = "Options",
+                                tint = MaterialTheme.colors.onSurface
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = showOptionsMenu,
+                            onDismissRequest = { showOptionsMenu = false }
+                        ) {
+                            DropdownMenuItem(onClick = {
+                                showOptionsMenu = false
+                                onView(todo)
+                            }) {
+                                Text(stringResource(R.string.view))
+                            }
+                            DropdownMenuItem(onClick = {
+                                showOptionsMenu = false
+                                onEdit(todo)
+                            }) {
+                                Text(stringResource(R.string.edit))
+                            }
+                            DropdownMenuItem(onClick = {
+                                showOptionsMenu = false
+                                onDelete(todo)
+                            }) {
+                                Text(stringResource(R.string.delete))
+                            }
+                        }
                     }
                 }
                 Text(
@@ -211,6 +245,7 @@ fun PreviewTodoEachItem() {
             onEdit = { Log.d("Preview", "Edit requested for: ${it.task}") },
             onDelete = { Log.d("Preview", "Delete requested for: ${it.task}") },
             currentSwipedItem = currentSwipedItem,
+            onView = TODO(),
         )
     }
 }

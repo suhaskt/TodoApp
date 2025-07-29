@@ -64,12 +64,15 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.navigation.navigation.compose)
+    implementation(libs.androidx.core.splashscreen)
+
 
 
     //roomDB
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.paging)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.storage)
     //noinspection KaptUsageInsteadOfKsp
     kapt(libs.androidx.room.compiler)
 
